@@ -4,7 +4,7 @@ import { compare, hash } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../users/schema/user.schema';
-import type { Response } from 'express';
+import { response, type Response } from 'express';
 
 interface TokenPayload {
     userId: string;
@@ -21,6 +21,7 @@ export class AuthService {
     async login(
         user: User,
         response: Response,
+        redirect = false,
     ) {
         const expiresAccessToken = new Date();
         expiresAccessToken.setMilliseconds(
@@ -75,6 +76,11 @@ export class AuthService {
         });
             
     }
+    if (redirect){
+        response.redirect(
+            this.configService.getOrThrow('AUTH_UI_REDIRECT')
+        );
+    }
 
     async verifyUser(email: string, password: string) {
         try {
@@ -116,5 +122,22 @@ async veryifyUserRefreshToken(refreshToken: string, userId: string) {
         throw new UnauthorizedException('Refresh token is not valid.')
     }
   }
+  async PasswordReset(user: User, currentPassword: string, newPassword: string){
+    try {
+        const authenticated = await compare(currentPassword, user.password)
+        if (!authenticated) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+        console.log(newPassword);
+    } catch (err) {
+        throw new UnauthorizedException('Credentials are not valid.');
+    }
+
+    await this.usersService.updateUser(
+        {_id:user._id},
+        { $set: {password: await hash(newPassword, 10)}}
+    )
+    }
+    
 }
 
