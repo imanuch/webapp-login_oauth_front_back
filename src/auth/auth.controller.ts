@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Patch, Post, Res, UseGuards, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Res,
+  UseGuards,
+  UseInterceptors,
+  ValidationPipe,
+} from '@nestjs/common';
 import { LocalAuthGuard } from './guards/local-auth.guards';
 import { CurrentUser } from './strategies/current-user.decorator';
 import { User } from 'src/users/schema/user.schema';
@@ -9,6 +19,7 @@ import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guards';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from 'src/users/dto/login.dto';
+import { LoggingInterceptor } from 'src/common/interceptors/logging.interceptors';
 
 @Controller('auth')
 export class AuthController {
@@ -17,22 +28,18 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   async login(
     @Body(ValidationPipe) loginDto: LoginDto,
-  @CurrentUser() user: User, 
-  @Res({ passthrough: true }) response: Response,
-) {
-  console.log('res')
-  await this.authService.login(user, response);
-}
-
+    @CurrentUser() user: User,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    console.log('res');
+    await this.authService.login(user, response);
+  }
 
   @Post('refresh')
   @UseGuards(JwtRefreshAuthGuard)
-  async refreshToken(
-    @CurrentUser() user: User, 
-    @Res({ passthrough: true }) response: Response,
-) {
-  console.log('res')
-  await this.authService.login(user, response);
+  async refreshToken(@CurrentUser() user: User, @Res({ passthrough: true }) response: Response) {
+    console.log('res');
+    await this.authService.login(user, response);
   }
 
   @Get('google')
@@ -41,12 +48,9 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
-  async googleCallback(
-    @CurrentUser() user: User,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    await this.authService.login(user, response,true);
-    
+  async googleCallback(@CurrentUser() user: User, @Res({ passthrough: true }) response: Response) {
+    await this.authService.login(user, response, true);
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -114,13 +118,9 @@ export class AuthController {
   }
   @Patch('change-password')
   @UseGuards(JwtAuthGuard)
-  async PasswordReset(
-    @CurrentUser() user: User, 
-    @Body() body: ChangePasswordDto
-
-  )
-  { 
-    console.log("yoyoyo")
+  async PasswordReset(@CurrentUser() user: User, @Body() body: ChangePasswordDto) {
+    console.log('yoyoyo');
     //console.log("mot de passe actuel : ", body.currentPassword);
-    await this.authService.PasswordReset(user,body.currentPassword,body.newPassword)}
+    await this.authService.PasswordReset(user, body.currentPassword, body.newPassword);
+  }
 }

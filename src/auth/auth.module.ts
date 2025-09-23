@@ -9,10 +9,12 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigService } from '@nestjs/config';
 import { JwtRefreshStrategy } from './strategies/jwt.refresh.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggingInterceptor } from 'src/common/interceptors/logging.interceptors';
 
-@Module({
+   @Module({
   imports: [UsersModule, PassportModule, JwtModule],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy, JwtRefreshStrategy, GoogleStrategy],
 })
-export class AuthModule {}
+export class AuthModule { }   

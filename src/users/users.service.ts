@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './schema/user.schema';
 import { hash } from 'bcryptjs';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model,FilterQuery, UpdateQuery } from 'mongoose';
+import { Model, FilterQuery, UpdateQuery } from 'mongoose';
 import { CreateUserRequest } from './dto/create-user.request';
 
 @Injectable()
@@ -22,16 +22,15 @@ export class UsersService {
     return user.toObject();
   }
   async getUsers() {
-    return this.userModel.find({})
+    return this.userModel.find({});
   }
-  async updateUser(query: FilterQuery<User>, data: UpdateQuery<User>){
-    return this.userModel.findOneAndUpdate(query,data);
-    }
-  async getOrCreateUser(data: CreateUserRequest){
-    const user = await this.userModel.findOne({ email: data.email})
+  async updateUser(query: FilterQuery<User>, data: UpdateQuery<User>) {
+    return this.userModel.findOneAndUpdate(query, data);
+  }
+  async getOrCreateUser(data: CreateUserRequest) {
+    const user = await this.userModel.findOne({ email: data.email });
     if (user) {
       return user;
-      
     }
     return this.create(data);
   }

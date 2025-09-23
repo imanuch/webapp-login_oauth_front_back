@@ -17,10 +17,8 @@ export class UsersController {
 
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @RequireRole('admin')
-  async getUsers(
-    @CurrentUser() user: User
-  ) {
+  //@RequireRole('admin')
+  async getUsers(@CurrentUser() user: User) {
     console.log(user);
     return this.usersService.getUsers();
   }
